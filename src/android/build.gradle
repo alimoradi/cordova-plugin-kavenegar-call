@@ -1,0 +1,10 @@
+allprojects {
+    repositories {
+        maven {
+            url "http://maven.kavenegar.io/"
+        }
+    }
+}
+dependencies {
+    implementation 'io.kavenegar:call-sdk:1.2.5'
+}
