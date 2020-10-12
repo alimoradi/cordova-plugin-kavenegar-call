@@ -55,12 +55,7 @@ public class CordovaPluginKavenegarCall extends CordovaPlugin {
     }
     return true;
   }
-  public initCall(String _accessToken, String _callId)
-  {
-    KavenegarCall.getInstance().initCall(callId, accessToken, new DefaultLogger(), this, this::handleJoinResult);
-  }
-  private void handleJoinResult(JoinStatus status, Call call) {
-  }
+  
 
 
 }
