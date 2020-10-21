@@ -27,27 +27,25 @@ import io.kavenegar.sdk.call.log.DefaultLogger;
 import io.kavenegar.sdk.call.log.Logger;
 import io.kavenegar.sdk.call.messaging.MediaStateChangedEvent;
 import io.kavenegar.sdk.call.messaging.MessagingStateChangedEvent;
-import io.kavenegar.sdk.call.webrtc.models.LocalMediaStateChangedEvent;
 import android.util.Log;
 
 import java.util.Date;
 
-public class CordovaPluginKavenegarCall extends CordovaPlugin {
+public class CordovaPluginKavenegarCall extends CordovaPlugin implements CallEventListener {
   private static final String TAG = "CordovaPluginKavenegarCall";
   KavenegarAudioManager audioManager;
   Call call;
   public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-    KavenegarCall.initialize(this, Environment.PRODUCTION);
+    KavenegarCall.initialize(cordova.getActivity(), Environment.PRODUCTION);
     super.initialize(cordova, webView);
 
     Log.d(TAG, "Initializing CordovaPluginKavenegarCall");
   }
 
   public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) throws JSONException {
-    if(action.equals("echo")) {
-      String phrase = args.getString(0);
-      // Echo back the first argument
-      Log.d(TAG, phrase);
+    if(action.equals("initCall")) {
+      this.initCall(callbackContext, args.getString(0), args.getString(1));
+      return true;
     } else if(action.equals("getDate")) {
       // An example of returning data back to the web layer
       final PluginResult result = new PluginResult(PluginResult.Status.OK, (new Date()).toString());
@@ -55,7 +53,36 @@ public class CordovaPluginKavenegarCall extends CordovaPlugin {
     }
     return true;
   }
-  
+  public void initCall(final CallbackContext callbackContext, final String _callId, final String _accessToken )
+  {
+     try {
+          KavenegarCall.getInstance().initCall(_callId, _accessToken, this, (status, call) -> {
+            if (status == JoinStatus.SUCCESS) {
+                  audioManager.initializeAudioForCall();
+                  //callbackContext.success(status);
+            } else {
+                  //callbackContext.error("failed");
+            }                
+          });
+        } catch (Exception ex) {
+            
+        }
+   
+  }
+  @Override
+    public void onMediaStateChanged(MediaStateChangedEvent event) {
+        // Show caller & receptor media state
+    }
+    @Override
+    public void onCallFinished(CallFinishedReason reason) {
+        // When Call state changed to finished, this method called with reason of finish
+    }
+
+    @Override
+    public void onCallStateChanged(CallStatus state,boolean isLocalChange) {
+        // isLocalChange : Show's the change is made by you or your contact
+        
+    }
 
 
 }
